@@ -29,7 +29,7 @@ class _MainScreenState extends State<MainScreen> {
       bottomNavigationBar: Container(
         color: const Color.fromRGBO(246, 246, 250, 1),
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(27),
+          borderRadius: BorderRadius.circular(30),
           child: Container(
             color: const Color.fromRGBO(46, 39, 47, 1),
             padding: const EdgeInsets.all(10),

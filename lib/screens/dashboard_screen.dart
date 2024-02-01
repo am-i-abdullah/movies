@@ -1,19 +1,23 @@
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:movies/api/api_credentials.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:movies/api/get_upcoming_movies.dart';
+import 'package:movies/bloc/movies_bloc.dart';
 import 'package:movies/models/movie.dart';
-import 'package:movies/screens/movie_detail.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:movies/providers/movie_provider.dart';
+import 'package:movies/screens/movie/movie_detail.dart';
+import 'package:movies/widget/item_card.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DashboardScreen extends StatefulWidget {
+class DashboardScreen extends ConsumerStatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  State<DashboardScreen> createState() => _DashboardScreenState();
+  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends State<DashboardScreen> {
-  List<dynamic> movies = [];
+class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+  List<Movie> movies = [];
+  Widget content = const SizedBox();
 
   @override
   void initState() {
@@ -22,25 +26,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
   }
 
   void loadData() async {
-    final Dio dio = Dio();
-
-    const String endpoint = 'https://api.themoviedb.org/3/movie/upcoming';
-
-    final Map<String, String> headers = {
-      'Authorization': 'Bearer $apiReadAccessToken',
-      'accept': 'application/json',
-    };
-
-    final Response res = await dio.get(
-      endpoint,
-      options: Options(
-        headers: headers,
-      ),
-    );
-    setState(() {
-      movies = res.data['results'];
-      print(movies[2]);
-    });
+    // loading data in start of application
+    ref.context.read<MoviesBloc>().add(LoadMoviesEvent());
   }
 
   @override
@@ -49,40 +36,79 @@ class _DashboardScreenState extends State<DashboardScreen> {
       backgroundColor: const Color.fromRGBO(246, 246, 250, 1),
       appBar: AppBar(
         backgroundColor: Colors.white,
-        title: const Text('Watch'),
+        foregroundColor: const Color.fromRGBO(32, 44, 67, 1),
+        title: const Text(
+          'Watch',
+          style: TextStyle(
+            color: Color.fromRGBO(32, 44, 67, 1),
+          ),
+        ),
         actions: [
           IconButton(
-            onPressed: () {},
+            onPressed: () async {
+              await getUpcomingMovies();
+            },
             icon: const Icon(Icons.search),
           ),
           const SizedBox(width: 10),
         ],
       ),
-      body: movies.isEmpty
-          ? const Center(
+      body: BlocListener<MoviesBloc, MoviesState>(
+        listener: (context, state) {
+          // set to loading widget
+          if (state is MoviesLoading) {
+            content = const Center(
               child: CircularProgressIndicator(
                 color: Color.fromRGBO(130, 125, 136, 1),
               ),
-            )
-          : ListView.builder(
+            );
+          }
+          // incase of anything wrong...
+          if (state is MoviesLoadingFailed) {
+            content = ListView.builder(
+              itemCount: 1,
+              itemBuilder: (context, index) {
+                return SizedBox(
+                  height: MediaQuery.of(context).size.height / 2.5,
+                  child: Column(
+                    children: [
+                      const Expanded(child: SizedBox()),
+                      Center(
+                        child: Image.asset(
+                          'assets/no_internet.png',
+                          height: 100,
+                        ),
+                      ),
+                      const Text('Something went wrong!'),
+                    ],
+                  ),
+                );
+              },
+            );
+          }
+          // got movies data from internet or local storage
+          if (state is MoviesLoaded) {
+            movies = state.movies;
+            content = ListView.builder(
               padding: const EdgeInsets.all(15),
               itemCount: movies.length,
               scrollDirection: Axis.vertical,
               itemBuilder: (context, index) {
                 return InkWell(
+                  // using provider, for using Move instance data in other screens
                   onTap: () {
-                    Movie movie = Movie(
-                      id: movies[index]['id'],
-                      title: movies[index]['title'],
-                      releaseDate: movies[index]['release_date'],
-                      imageURL: movies[index]['backdrop_path'],
-                      genreIDs: List<int>.from(movies[index]['genre_ids']),
-                      overview: movies[index]['overview'],
-                    );
+                    ref.read(movieProvider).id = movies[index].id;
+                    ref.read(movieProvider).title = movies[index].title;
+                    ref.read(movieProvider).releaseDate =
+                        movies[index].releaseDate;
+                    ref.read(movieProvider).imageURL = movies[index].imageURL;
+                    ref.read(movieProvider).genreIDs = movies[index].genreIDs;
+                    ref.read(movieProvider).overview = movies[index].overview;
+
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) {
-                        return MovieDetails(movie: movie);
+                        return const MovieDetails();
                       }),
                     );
                   },
@@ -90,54 +116,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
                   // card content
                   child: Container(
                     margin: const EdgeInsets.only(bottom: 20),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(15),
-                      child: Stack(
-                        children: [
-                          SizedBox(
-                            height: 200,
-                            width: double.infinity,
-                            child: Image.network(
-                              'https://image.tmdb.org/t/p/w600_and_h900_bestv2${movies[index]['backdrop_path']}',
-                              fit: BoxFit.cover,
-                              loadingBuilder:
-                                  (context, child, loadingProgress) {
-                                if (loadingProgress == null) {
-                                  return child; // If the image is loaded, display it
-                                } else {
-                                  return Shimmer.fromColors(
-                                    direction: ShimmerDirection.btt,
-                                    baseColor: Colors.grey,
-                                    highlightColor: Colors.grey.shade100,
-                                    child: Container(
-                                      height: 200,
-                                      width: double.infinity,
-                                      color: Colors.amber,
-                                    ),
-                                  );
-                                }
-                              },
-                            ),
-                          ),
-                          Positioned(
-                            bottom: 10,
-                            left: 10,
-                            child: Text(
-                              movies[index]['title'],
-                              // maxLines: 1,
-                              // softWrap: false,
-                              // overflow: TextOverflow.ellipsis,
-                              style: const TextStyle(
-                                  fontSize: 18, color: Colors.white),
-                            ),
-                          ),
-                        ],
-                      ),
+                    child: ItemCard(
+                      imageURL:
+                          'https://image.tmdb.org/t/p/w600_and_h900_bestv2${movies[index].imageURL}',
+                      title: movies[index].title,
                     ),
                   ),
                 );
               },
-            ),
+            );
+          }
+          // refresh screen according to the screen
+          setState(() {});
+        },
+        child: RefreshIndicator(
+          color: Colors.white,
+          backgroundColor: const Color.fromRGBO(130, 125, 136, 1),
+
+          // reloading data from internet
+          onRefresh: () async {
+            ref.context.read<MoviesBloc>().add(DeleteMoviesEvent());
+            ref.context.read<MoviesBloc>().add(LoadMoviesEvent());
+          },
+          child: content,
+        ),
+      ),
     );
   }
 }

@@ -1,9 +1,13 @@
 import 'package:intl/intl.dart';
 
 String formatDate(String date) {
-  DateTime date0 = DateTime.parse(date);
+  DateTime parsedDate = DateTime.parse(date);
 
-  String formattedDate = DateFormat('MMMM dd, y').format(date0);
+  String formattedDate = DateFormat('MMMM dd, y').format(parsedDate);
 
   return formattedDate;
+}
+
+String formatDayMonthDate() {
+  return '';
 }

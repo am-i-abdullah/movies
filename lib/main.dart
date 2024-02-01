@@ -1,16 +1,39 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:hive_flutter/hive_flutter.dart';
+import 'package:movies/bloc/booking_details_bloc.dart';
+import 'package:movies/bloc/movies_bloc.dart';
+import 'package:movies/models/movie.dart';
 import 'package:movies/screens/main_screen.dart';
-import 'package:movies/utils/color_scheme.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:movies/utils/color_pallete.dart';
 
 final theme = ThemeData(
   useMaterial3: true,
   textTheme: GoogleFonts.poppinsTextTheme(),
-  colorScheme: colorScheme,
+  colorScheme: colorPallete,
 );
 
-void main() {
-  runApp(const App());
+void main() async {
+  await Hive.initFlutter();
+  Hive.registerAdapter(MovieAdapter());
+
+  runApp(
+    MultiBlocProvider(
+      providers: [
+        BlocProvider<BookingDetailsBloc>(
+          create: (context) => BookingDetailsBloc(),
+        ),
+        BlocProvider<MoviesBloc>(
+          create: (context) => MoviesBloc(),
+        ),
+      ],
+      child: const ProviderScope(
+        child: App(),
+      ),
+    ),
+  );
 }
 
 class App extends StatelessWidget {
