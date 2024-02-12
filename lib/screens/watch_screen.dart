@@ -12,6 +12,8 @@ class WatchScreen extends StatefulWidget {
 
 class _WatchScreenState extends State<WatchScreen> {
   TextEditingController searchController = TextEditingController();
+  bool searchingDone = false;
+
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -26,25 +28,39 @@ class _WatchScreenState extends State<WatchScreen> {
             controller: searchController,
             onSubmitted: (value) {},
             onChanged: (value) {
-              setState(() {});
+              setState(() {
+                searchingDone = false;
+              });
             },
             decoration: InputDecoration(
               contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  const EdgeInsets.symmetric(horizontal: 50, vertical: 15),
               hintText: 'TV shows, movies and more',
               hintStyle: const TextStyle(
                 fontWeight: FontWeight.w300,
-                fontSize: 13,
+                fontSize: 12.5,
                 color: Colors.grey,
               ),
               border: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(30),
                 borderSide: BorderSide.none,
               ),
-              prefixIcon: const Icon(
-                Icons.search,
-                color: Color.fromRGBO(32, 44, 67, 1),
+
+              // done search query
+              prefixIcon: Container(
+                margin: const EdgeInsets.only(right: 5),
+                child: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () {
+                    setState(() {
+                      searchingDone = true;
+                    });
+                  },
+                  color: const Color.fromRGBO(32, 44, 67, 1),
+                ),
               ),
+
+              // clear the all search results
               suffixIcon: Container(
                 margin: const EdgeInsets.only(right: 7),
                 child: IconButton(
@@ -53,8 +69,9 @@ class _WatchScreenState extends State<WatchScreen> {
                     color: Color.fromRGBO(32, 44, 67, 1),
                   ),
                   onPressed: () {
-                    searchController.clear();
-                    setState(() {});
+                    setState(() {
+                      searchController.clear();
+                    });
                   },
                 ),
               ),
@@ -84,7 +101,10 @@ class _WatchScreenState extends State<WatchScreen> {
                   );
                 },
               )
-            : SearchResults(query: searchController.text),
+            : SearchResults(
+                query: searchController.text,
+                searchingDone: searchingDone,
+              ),
       ),
     );
   }

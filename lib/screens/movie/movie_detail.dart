@@ -4,6 +4,7 @@ import 'package:movies/providers/movie_provider.dart';
 import 'package:movies/screens/movie/tickets_screen.dart';
 import 'package:movies/utils/date_formatter.dart';
 import 'package:movies/widget/genres_list.dart';
+import 'package:movies/screens/movie/watch_trailer.dart';
 
 class MovieDetails extends ConsumerWidget {
   const MovieDetails({super.key});
@@ -100,7 +101,16 @@ class MovieDetails extends ConsumerWidget {
                           borderRadius: BorderRadius.circular(5),
                         ),
                         child: TextButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) {
+                                  return const WatchTrailer();
+                                },
+                              ),
+                            );
+                          },
                           child: const Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [

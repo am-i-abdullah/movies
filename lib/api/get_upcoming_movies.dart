@@ -35,6 +35,8 @@ Future<List<Movie>> getUpcomingMovies() async {
 
       movies.add(mov);
     }
+    movies.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
+
     return movies;
   } catch (error) {
     return [];

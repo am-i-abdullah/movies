@@ -7,7 +7,7 @@ List<Genre> genres = [
     tag: 'Action',
     tagColor: Colors.red,
     imageURL:
-        'https://media.themoviedb.org/t/p/w600_and_h900_bestv2/9GBhzXMFjgcZ3FdR9w3bUMMTps5.jpg',
+        'https://www.themoviedb.org/t/p/w600_and_h900_bestv2/cND79ZWPFINDtkA8uwmQo1gnPPE.jpg',
   ),
   const Genre(
     id: 12,
