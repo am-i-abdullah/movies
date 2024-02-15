@@ -1,21 +1,24 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/data/genres.dart';
+import 'package:movies/providers/query_provider.dart';
 import 'package:movies/widget/item_card.dart';
 import 'package:movies/widget/search_results.dart';
 
-class WatchScreen extends StatefulWidget {
+class WatchScreen extends ConsumerStatefulWidget {
   const WatchScreen({super.key});
 
   @override
-  State<WatchScreen> createState() => _WatchScreenState();
+  ConsumerState<WatchScreen> createState() => _WatchScreenState();
 }
 
-class _WatchScreenState extends State<WatchScreen> {
+class _WatchScreenState extends ConsumerState<WatchScreen> {
   TextEditingController searchController = TextEditingController();
-  bool searchingDone = false;
 
   @override
   Widget build(BuildContext context) {
+    final query = ref.watch(queryProvider)['query'];
+
     return SafeArea(
       child: Scaffold(
         backgroundColor: const Color.fromRGBO(246, 246, 250, 1),
@@ -26,11 +29,14 @@ class _WatchScreenState extends State<WatchScreen> {
           // search bar
           title: TextField(
             controller: searchController,
-            onSubmitted: (value) {},
+            onSubmitted: (value) {
+              ref.read(queryProvider.notifier).setShowResults(true);
+            },
             onChanged: (value) {
-              setState(() {
-                searchingDone = false;
-              });
+              ref.read(queryProvider.notifier).setShowResults(false);
+              ref
+                  .read(queryProvider.notifier)
+                  .updateQuery(searchController.text);
             },
             decoration: InputDecoration(
               contentPadding:
@@ -52,9 +58,7 @@ class _WatchScreenState extends State<WatchScreen> {
                 child: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () {
-                    setState(() {
-                      searchingDone = true;
-                    });
+                    ref.read(queryProvider.notifier).setShowResults(true);
                   },
                   color: const Color.fromRGBO(32, 44, 67, 1),
                 ),
@@ -69,9 +73,9 @@ class _WatchScreenState extends State<WatchScreen> {
                     color: Color.fromRGBO(32, 44, 67, 1),
                   ),
                   onPressed: () {
-                    setState(() {
-                      searchController.clear();
-                    });
+                    ref.read(queryProvider.notifier).setShowResults(false);
+                    ref.read(queryProvider.notifier).updateQuery("");
+                    searchController.clear();
                   },
                 ),
               ),
@@ -83,8 +87,9 @@ class _WatchScreenState extends State<WatchScreen> {
         ),
 
         // searched items or all genres
-        body: searchController.text.isEmpty
-            ? GridView.builder(
+        body: query != ""
+            ? const SearchResults()
+            : GridView.builder(
                 padding:
                     const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
                 gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -100,10 +105,6 @@ class _WatchScreenState extends State<WatchScreen> {
                     title: genres[index].tag,
                   );
                 },
-              )
-            : SearchResults(
-                query: searchController.text,
-                searchingDone: searchingDone,
               ),
       ),
     );

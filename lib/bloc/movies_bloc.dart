@@ -1,4 +1,5 @@
 import 'package:bloc/bloc.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:meta/meta.dart';
 import 'package:movies/api/get_upcoming_movies.dart';
 import 'package:movies/models/movie.dart';
@@ -20,7 +21,8 @@ class MoviesBloc extends Bloc<MoviesEvent, MoviesState> {
 
         // incase there's no saved movies in local storage, then load from API
         if (savedMovies.isEmpty) {
-          List<Movie> upcomingMovies = await getUpcomingMovies();
+          List<Movie> upcomingMovies =
+              await getUpcomingMovies(const FlutterSecureStorage());
           // incase of poor internet connection, or any kind of exception
           if (upcomingMovies.isEmpty) {
             return emit(MoviesLoadingFailed());

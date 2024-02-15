@@ -1,8 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:movies/api/api_credentials.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:movies/models/movie.dart';
 
-Future<List<Movie>> getUpcomingMovies() async {
+Future<List<Movie>> getUpcomingMovies(FlutterSecureStorage storage) async {
+  String? apiReadAccessToken = await storage.read(key: 'API_READ_ACCESS_TOKEN');
+
   final Dio dio = Dio();
 
   const String endpoint = 'https://api.themoviedb.org/3/movie/upcoming';
@@ -24,19 +26,13 @@ Future<List<Movie>> getUpcomingMovies() async {
 
     List<Movie> movies = [];
 
-    for (final movie in res.data['results']) {
-      Movie mov = Movie();
-      mov.genreIDs = List<int>.from(movie['genre_ids']);
-      mov.id = movie['id'];
-      mov.imageURL = movie['backdrop_path'];
-      mov.overview = movie['overview'];
-      mov.title = movie['title'];
-      mov.releaseDate = movie['release_date'];
+    final data = res.data['results'] as List<dynamic>;
 
-      movies.add(mov);
-    }
+    // converting json to movies objects
+    movies = data.map((movie) => Movie.fromJson(movie)).toList();
+
+    // sorting all upcoming movies by date (ascending)
     movies.sort((a, b) => b.releaseDate.compareTo(a.releaseDate));
-
     return movies;
   } catch (error) {
     return [];

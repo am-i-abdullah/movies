@@ -1,7 +1,10 @@
 import 'package:dio/dio.dart';
-import 'package:movies/api/api_credentials.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
 Future<String> getTrailerVideoKey(String id) async {
+  String? apiReadAccessToken =
+      await const FlutterSecureStorage().read(key: 'API_READ_ACCESS_TOKEN');
+
   final Dio dio = Dio();
 
   String endpoint =

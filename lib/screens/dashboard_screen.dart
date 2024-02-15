@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:movies/api/get_upcoming_movies.dart';
 import 'package:movies/bloc/movies_bloc.dart';
 import 'package:movies/models/movie.dart';
 import 'package:movies/providers/movie_provider.dart';
@@ -45,15 +44,13 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
         ),
         actions: [
           IconButton(
-            onPressed: () async {
-              await getUpcomingMovies();
-            },
+            onPressed: () async {},
             icon: const Icon(Icons.search),
           ),
           const SizedBox(width: 10),
         ],
       ),
-      body: BlocListener<MoviesBloc, MoviesState>(
+      body: BlocConsumer<MoviesBloc, MoviesState>(
         listener: (context, state) {
           // set to loading widget
           if (state is MoviesLoading) {
@@ -97,13 +94,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 return InkWell(
                   // using provider, for using Move instance data in other screens
                   onTap: () {
-                    ref.read(movieProvider).id = movies[index].id;
-                    ref.read(movieProvider).title = movies[index].title;
-                    ref.read(movieProvider).releaseDate =
-                        movies[index].releaseDate;
-                    ref.read(movieProvider).imageURL = movies[index].imageURL;
-                    ref.read(movieProvider).genreIDs = movies[index].genreIDs;
-                    ref.read(movieProvider).overview = movies[index].overview;
+                    updateMovieProvider(movies[index], ref);
 
                     Navigator.push(
                       context,
@@ -126,20 +117,20 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
               },
             );
           }
-          // refresh screen according to the screen
-          setState(() {});
         },
-        child: RefreshIndicator(
-          color: Colors.white,
-          backgroundColor: const Color.fromRGBO(130, 125, 136, 1),
+        builder: (context, state) {
+          return RefreshIndicator(
+            color: Colors.white,
+            backgroundColor: const Color.fromRGBO(130, 125, 136, 1),
 
-          // reloading data from internet
-          onRefresh: () async {
-            ref.context.read<MoviesBloc>().add(DeleteMoviesEvent());
-            ref.context.read<MoviesBloc>().add(LoadMoviesEvent());
-          },
-          child: content,
-        ),
+            // reloading data from internet
+            onRefresh: () async {
+              ref.context.read<MoviesBloc>().add(DeleteMoviesEvent());
+              ref.context.read<MoviesBloc>().add(LoadMoviesEvent());
+            },
+            child: content,
+          );
+        },
       ),
     );
   }

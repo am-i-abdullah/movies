@@ -1,4 +1,0 @@
-const String apiKey = '04769a89730cd2d8c506a9ce30419e82';
-
-const String apiReadAccessToken =
-    'eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNDc2OWE4OTczMGNkMmQ4YzUwNmE5Y2UzMDQxOWU4MiIsInN1YiI6IjY1Yjk1ZGZkOTBmY2EzMDE0ODA1ZDBjMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.eljqy5_yWz28VB8vb6uobi5jODFaGQ8fEVZQgJB65WI';

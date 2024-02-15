@@ -5,18 +5,12 @@ import 'package:movies/bloc/movies_bloc.dart';
 import 'package:movies/data/genres.dart';
 import 'package:movies/models/movie.dart';
 import 'package:movies/providers/movie_provider.dart';
+import 'package:movies/providers/query_provider.dart';
 import 'package:movies/screens/movie/movie_detail.dart';
 import 'package:movies/widget/item_card.dart';
 
 class SearchResults extends ConsumerStatefulWidget {
-  const SearchResults({
-    super.key,
-    required this.query,
-    this.searchingDone = false,
-  });
-
-  final String query;
-  final bool searchingDone;
+  const SearchResults({super.key, r});
 
   @override
   ConsumerState<SearchResults> createState() => _SearchResultsState();
@@ -32,13 +26,13 @@ class _SearchResultsState extends ConsumerState<SearchResults> {
           filteredMovies = state.movies
               .where((movie) => movie.title
                   .toLowerCase()
-                  .contains(widget.query.toLowerCase()))
+                  .contains(ref.watch(queryProvider)['query'].toLowerCase()))
               .toList();
         }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (widget.searchingDone)
+            if (ref.watch(queryProvider)['show_results'])
               Padding(
                 padding: const EdgeInsets.only(top: 15, left: 20),
                 child: Text(
@@ -57,17 +51,7 @@ class _SearchResultsState extends ConsumerState<SearchResults> {
                   return InkWell(
                     onTap: () {
                       // navigate to movie detials screen
-                      ref.read(movieProvider).id = filteredMovies[index].id;
-                      ref.read(movieProvider).title =
-                          filteredMovies[index].title;
-                      ref.read(movieProvider).releaseDate =
-                          filteredMovies[index].releaseDate;
-                      ref.read(movieProvider).imageURL =
-                          filteredMovies[index].imageURL;
-                      ref.read(movieProvider).genreIDs =
-                          filteredMovies[index].genreIDs;
-                      ref.read(movieProvider).overview =
-                          filteredMovies[index].overview;
+                      updateMovieProvider(filteredMovies[index], ref);
 
                       Navigator.push(
                         context,

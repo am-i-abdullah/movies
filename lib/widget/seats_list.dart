@@ -12,8 +12,7 @@ class SeatsList extends ConsumerStatefulWidget {
 }
 
 class _SeatsListState extends ConsumerState<SeatsList> {
-  int? selectedIndex;
-  String dateToday = '';
+  String dateToday = DateFormat('d MMM').format(DateTime.now());
   String dateSelected = '';
   List<String> times = [
     '12:30',
@@ -30,64 +29,55 @@ class _SeatsListState extends ConsumerState<SeatsList> {
   ];
 
   @override
-  void initState() {
-    super.initState();
-
-    DateTime currentDate = DateTime.now();
-    setState(() {
-      dateToday = DateFormat('d MMM').format(currentDate);
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    return BlocListener<BookingDetailsBloc, BookingDetailsState>(
+    int? selectedIndex;
+
+    return BlocConsumer<BookingDetailsBloc, BookingDetailsState>(
       listener: (context, state) {
         if (state is BookingDetailsLoaded) {
-          setState(() {
-            dateSelected = state.bookingDetails.date;
-          });
+          dateSelected = state.bookingDetails.date;
+          selectedIndex = times.indexOf(state.bookingDetails.time);
         }
       },
-      child: SizedBox(
-        height: 350,
-        child: ListView.builder(
-          itemCount: times.length,
-          scrollDirection: Axis.horizontal,
-          itemBuilder: ((context, index) {
-            // incase today's time has been passed
-            if (DateTime.now().hour >=
-                    int.parse(times[index].substring(0, 2)) &&
-                dateSelected == dateToday) {
-              return const SizedBox();
-            }
+      builder: (context, state) {
+        return SizedBox(
+          height: 350,
+          child: ListView.builder(
+            itemCount: times.length,
+            scrollDirection: Axis.horizontal,
+            itemBuilder: ((context, index) {
+              // incase today's time has been passed
+              if (DateTime.now().hour >=
+                      int.parse(times[index].substring(0, 2)) &&
+                  dateSelected == dateToday) {
+                return const SizedBox();
+              }
 
-            return Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                RichText(
-                  text: TextSpan(
-                    text: times[index],
-                    style: const TextStyle(
-                      color: Color.fromRGBO(32, 44, 67, 1),
-                      fontSize: 15,
-                    ),
-                    children: const [
-                      TextSpan(
-                        text: '   Cinetech + Hall 1',
-                        style: TextStyle(
-                          color: Color.fromRGBO(143, 143, 143, 1),
-                          fontSize: 15,
-                        ),
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  RichText(
+                    text: TextSpan(
+                      text: times[index],
+                      style: const TextStyle(
+                        color: Color.fromRGBO(32, 44, 67, 1),
+                        fontSize: 15,
                       ),
-                    ],
+                      children: const [
+                        TextSpan(
+                          text: '   Cinetech + Hall 1',
+                          style: TextStyle(
+                            color: Color.fromRGBO(143, 143, 143, 1),
+                            fontSize: 15,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                const SizedBox(height: 7),
-                InkWell(
-                  splashColor: Colors.transparent,
-                  onTap: () {
-                    setState(() {
+                  const SizedBox(height: 7),
+                  InkWell(
+                    splashColor: Colors.transparent,
+                    onTap: () {
                       context
                           .read<BookingDetailsBloc>()
                           .add(UpdateBookingDetailsEvent(
@@ -95,70 +85,70 @@ class _SeatsListState extends ConsumerState<SeatsList> {
                             dateSelected,
                           ));
                       selectedIndex = index;
-                    });
-                  },
-                  child: Container(
-                    padding: const EdgeInsets.all(20),
-                    margin: const EdgeInsets.only(right: 10),
-                    decoration: BoxDecoration(
-                      border: Border.all(
-                        color: selectedIndex == index
-                            ? const Color.fromRGBO(97, 195, 242, 1)
-                            : const Color.fromRGBO(166, 166, 166, 0.1),
-                        width: 2,
+                    },
+                    child: Container(
+                      padding: const EdgeInsets.all(20),
+                      margin: const EdgeInsets.only(right: 10),
+                      decoration: BoxDecoration(
+                        border: Border.all(
+                          color: selectedIndex == index
+                              ? const Color.fromRGBO(97, 195, 242, 1)
+                              : const Color.fromRGBO(166, 166, 166, 0.1),
+                          width: 2,
+                        ),
+                        borderRadius: BorderRadius.circular(12.5),
                       ),
-                      borderRadius: BorderRadius.circular(12.5),
-                    ),
-                    child: Center(
-                      child: Image.asset(
-                        'assets/images/seats.png',
-                        // height: 270,
-                        width: MediaQuery.of(context).size.width / 1.85,
-                        fit: BoxFit.cover,
+                      child: Center(
+                        child: Image.asset(
+                          'assets/images/seats.png',
+                          // height: 270,
+                          width: MediaQuery.of(context).size.width / 1.85,
+                          fit: BoxFit.cover,
+                        ),
                       ),
                     ),
                   ),
-                ),
-                const SizedBox(height: 7),
-                RichText(
-                  text: const TextSpan(
-                    text: 'From',
-                    style: TextStyle(
-                      color: Color.fromRGBO(143, 143, 143, 1),
-                      fontSize: 15,
+                  const SizedBox(height: 7),
+                  RichText(
+                    text: const TextSpan(
+                      text: 'From',
+                      style: TextStyle(
+                        color: Color.fromRGBO(143, 143, 143, 1),
+                        fontSize: 15,
+                      ),
+                      children: [
+                        TextSpan(
+                          text: '\$50',
+                          style: TextStyle(
+                            color: Color.fromRGBO(32, 44, 67, 1),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' or',
+                          style: TextStyle(
+                            color: Color.fromRGBO(143, 143, 143, 1),
+                            fontSize: 15,
+                          ),
+                        ),
+                        TextSpan(
+                          text: ' \$200 bonus',
+                          style: TextStyle(
+                            color: Color.fromRGBO(32, 44, 67, 1),
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
                     ),
-                    children: [
-                      TextSpan(
-                        text: '\$50',
-                        style: TextStyle(
-                          color: Color.fromRGBO(32, 44, 67, 1),
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' or',
-                        style: TextStyle(
-                          color: Color.fromRGBO(143, 143, 143, 1),
-                          fontSize: 15,
-                        ),
-                      ),
-                      TextSpan(
-                        text: ' \$200 bonus',
-                        style: TextStyle(
-                          color: Color.fromRGBO(32, 44, 67, 1),
-                          fontSize: 15,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
                   ),
-                ),
-              ],
-            );
-          }),
-        ),
-      ),
+                ],
+              );
+            }),
+          ),
+        );
+      },
     );
   }
 }
