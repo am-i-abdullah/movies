@@ -37,50 +37,55 @@ class _DatesListState extends ConsumerState<DatesList> {
   Widget build(BuildContext context) {
     return BlocBuilder<BookingDetailsBloc, BookingDetailsState>(
       builder: (context, state) {
-        selectedIndex =
-            dates.indexOf((state as BookingDetailsLoaded).bookingDetails.date);
-        return SizedBox(
-          height: 35,
-          child: ListView.builder(
-            itemCount: dates.length,
-            scrollDirection: Axis.horizontal,
-            itemBuilder: ((context, index) {
-              return InkWell(
-                splashColor: Colors.transparent,
-                onTap: () {
-                  context
-                      .read<BookingDetailsBloc>()
-                      .add(UpdateBookingDetailsEvent(
-                        '',
+        if (state is BookingDetailsLoaded) {
+          selectedIndex = dates.indexOf((state).bookingDetails.date);
+          return SizedBox(
+            height: 35,
+            child: ListView.builder(
+              itemCount: dates.length,
+              scrollDirection: Axis.horizontal,
+              itemBuilder: ((context, index) {
+                return InkWell(
+                  splashColor: Colors.transparent,
+                  onTap: () {
+                    context
+                        .read<BookingDetailsBloc>()
+                        .add(UpdateBookingDetailsEvent(
+                          '',
+                          dates[index],
+                        ));
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(horizontal: 15),
+                    margin: const EdgeInsets.only(right: 7),
+                    decoration: BoxDecoration(
+                      color: selectedIndex == index
+                          ? const Color.fromRGBO(97, 195, 242, 1)
+                          : const Color.fromRGBO(166, 166, 166, 0.1),
+                      borderRadius: BorderRadius.circular(12.5),
+                    ),
+                    child: Center(
+                      child: Text(
                         dates[index],
-                      ));
-                },
-                child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15),
-                  margin: const EdgeInsets.only(right: 7),
-                  decoration: BoxDecoration(
-                    color: selectedIndex == index
-                        ? const Color.fromRGBO(97, 195, 242, 1)
-                        : const Color.fromRGBO(166, 166, 166, 0.1),
-                    borderRadius: BorderRadius.circular(12.5),
-                  ),
-                  child: Center(
-                    child: Text(
-                      dates[index],
-                      style: TextStyle(
-                        color: selectedIndex == index
-                            ? Colors.white
-                            : const Color.fromRGBO(32, 44, 67, 1),
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                        style: TextStyle(
+                          color: selectedIndex == index
+                              ? Colors.white
+                              : const Color.fromRGBO(32, 44, 67, 1),
+                          fontSize: 11,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
-                ),
-              );
-            }),
-          ),
-        );
+                );
+              }),
+            ),
+          );
+        } else {
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
+        }
       },
     );
   }
