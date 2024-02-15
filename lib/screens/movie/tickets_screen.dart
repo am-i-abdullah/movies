@@ -27,13 +27,13 @@ class _TicketsScreenState extends ConsumerState<TicketsScreen> {
           children: [
             const SizedBox(height: 10),
             Text(
-              ref.read(movieProvider).title,
+              movieProvider.title,
               style: const TextStyle(
                 fontSize: 18,
               ),
             ),
             Text(
-              'In theaters ${formatDate(ref.read(movieProvider).releaseDate)}',
+              'In theaters ${formatDate(movieProvider.releaseDate)}',
               style: const TextStyle(
                 color: Color.fromRGBO(97, 195, 242, 1),
                 fontSize: 13,

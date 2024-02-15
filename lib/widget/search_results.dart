@@ -51,7 +51,7 @@ class _SearchResultsState extends ConsumerState<SearchResults> {
                   return InkWell(
                     onTap: () {
                       // navigate to movie detials screen
-                      updateMovieProvider(filteredMovies[index], ref);
+                      updateMovieProvider(filteredMovies[index]);
 
                       Navigator.push(
                         context,

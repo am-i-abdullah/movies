@@ -20,7 +20,7 @@ class PaymentScreen extends ConsumerWidget {
               children: [
                 const SizedBox(height: 10),
                 Text(
-                  ref.read(movieProvider).title,
+                  movieProvider.title,
                   style: const TextStyle(
                     fontSize: 18,
                   ),

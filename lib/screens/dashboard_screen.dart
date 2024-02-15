@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/bloc/movies_bloc.dart';
 import 'package:movies/models/movie.dart';
 import 'package:movies/providers/movie_provider.dart';
@@ -7,14 +6,14 @@ import 'package:movies/screens/movie/movie_detail.dart';
 import 'package:movies/widget/item_card.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class DashboardScreen extends ConsumerStatefulWidget {
+class DashboardScreen extends StatefulWidget {
   const DashboardScreen({super.key});
 
   @override
-  ConsumerState<DashboardScreen> createState() => _DashboardScreenState();
+  State<DashboardScreen> createState() => _DashboardScreenState();
 }
 
-class _DashboardScreenState extends ConsumerState<DashboardScreen> {
+class _DashboardScreenState extends State<DashboardScreen> {
   List<Movie> movies = [];
   Widget content = const SizedBox();
 
@@ -26,7 +25,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
   void loadData() async {
     // loading data in start of application
-    ref.context.read<MoviesBloc>().add(LoadMoviesEvent());
+    context.read<MoviesBloc>().add(LoadMoviesEvent());
   }
 
   @override
@@ -94,7 +93,7 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
                 return InkWell(
                   // using provider, for using Move instance data in other screens
                   onTap: () {
-                    updateMovieProvider(movies[index], ref);
+                    updateMovieProvider(movies[index]);
 
                     Navigator.push(
                       context,
@@ -125,8 +124,8 @@ class _DashboardScreenState extends ConsumerState<DashboardScreen> {
 
             // reloading data from internet
             onRefresh: () async {
-              ref.context.read<MoviesBloc>().add(DeleteMoviesEvent());
-              ref.context.read<MoviesBloc>().add(LoadMoviesEvent());
+              context.read<MoviesBloc>().add(DeleteMoviesEvent());
+              context.read<MoviesBloc>().add(LoadMoviesEvent());
             },
             child: content,
           );

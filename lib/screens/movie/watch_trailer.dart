@@ -23,7 +23,7 @@ class _WatchTrailerState extends ConsumerState<WatchTrailer> {
 
   void videoSetup() async {
     // getting trailer youtube video key
-    videoKey = await getTrailerVideoKey(ref.read(movieProvider).id.toString());
+    videoKey = await getTrailerVideoKey(movieProvider.id.toString());
 
     // setting up controller
     controller = YoutubePlayerController(

@@ -1,16 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:movies/providers/movie_provider.dart';
 import 'package:movies/screens/movie/tickets_screen.dart';
 import 'package:movies/utils/date_formatter.dart';
 import 'package:movies/widget/genres_list.dart';
 import 'package:movies/screens/movie/watch_trailer.dart';
 
-class MovieDetails extends ConsumerWidget {
+class MovieDetails extends StatelessWidget {
   const MovieDetails({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     const textStyle = TextStyle(
       color: Colors.white,
       fontSize: 13,
@@ -42,7 +41,7 @@ class MovieDetails extends ConsumerWidget {
                   width: double.infinity,
                   height: MediaQuery.of(context).size.height / 1.7,
                   child: Image.network(
-                    'https://image.tmdb.org/t/p/w600_and_h900_bestv2/${ref.read(movieProvider).imageURL}',
+                    'https://image.tmdb.org/t/p/w600_and_h900_bestv2/${movieProvider.imageURL}',
                     fit: BoxFit.cover,
                     errorBuilder: (BuildContext context, Object error,
                         StackTrace? stackTrace) {
@@ -59,7 +58,7 @@ class MovieDetails extends ConsumerWidget {
                     children: [
                       const Expanded(child: SizedBox()),
                       Text(
-                        'In Theaters: ${formatDate(ref.read(movieProvider).releaseDate)}',
+                        'In Theaters: ${formatDate(movieProvider.releaseDate)}',
                         style: textStyle,
                       ),
                       const SizedBox(height: 10),
@@ -147,7 +146,7 @@ class MovieDetails extends ConsumerWidget {
                       ),
                     ),
                   ),
-                  GenresList(ids: ref.read(movieProvider).genreIDs),
+                  GenresList(ids: movieProvider.genreIDs),
                   const SizedBox(height: 15),
                   // overview
 
@@ -163,7 +162,7 @@ class MovieDetails extends ConsumerWidget {
                   ),
                   SingleChildScrollView(
                     child: Text(
-                      ref.read(movieProvider).overview,
+                      movieProvider.overview,
                       maxLines: 12,
                       overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
