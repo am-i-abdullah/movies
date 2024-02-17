@@ -1,23 +1,66 @@
+import 'package:dio/dio.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:movies/models/movie.dart';
+import 'package:http_mock_adapter/http_mock_adapter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 void main() async {
   TestWidgetsFlutterBinding.ensureInitialized();
 
-  // group('Testing the fetching movies API call:', () {
-  //   const storage = FlutterSecureStorage();
+  Dio dio = Dio(BaseOptions());
+  DioAdapter dioAdapter = DioAdapter(dio: dio);
+  Response<dynamic> response;
 
-  //   FlutterSecureStorage.setMockInitialValues({
-  //     "API_READ_ACCESS_TOKEN":
-  //         "eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiIwNDc2OWE4OTczMGNkMmQ4YzUwNmE5Y2UzMDQxOWU4MiIsInN1YiI6IjY1Yjk1ZGZkOTBmY2EzMDE0ODA1ZDBjMyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.eljqy5_yWz28VB8vb6uobi5jODFaGQ8fEVZQgJB65WI",
-  //   });
+  await dotenv.load(fileName: ".env");
+  String apiReadAccessToken = dotenv.env['API_READ_ACCESS_TOKEN']!;
 
-  //   test('Fetch upcoming movies', () async {
-  //     List<Movie> movies = await getUpcomingMovies(storage);
+  final Map<String, String> headers = {
+    'Authorization': 'Bearer $apiReadAccessToken',
+    'accept': 'application/json',
+  };
 
-  //     expect(movies, isNotEmpty);
-  //   });
-  // });
+  group('Testing the fetching movies API call:', () {
+    setUp(() {
+      dioAdapter.onGet(
+        'https://api.themoviedb.org/3/movie/upcoming',
+        (server) => server.reply(
+          200,
+          {'message': 'successful'},
+          // Delay the response by 1 second
+          delay: const Duration(seconds: 1),
+        ),
+      );
+    });
+
+    test('Fetch upcoming movies', () async {
+      response = await dio.get(
+        'https://api.themoviedb.org/3/movie/upcoming',
+        options: Options(headers: headers),
+      );
+      expect(response.statusCode, 200);
+    });
+
+    // for movie trailer link
+    setUp(() {
+      dioAdapter.onGet(
+        'https://api.themoviedb.org/3/movie/634492/videos?language=en-US',
+        (server) => server.reply(
+          200,
+          {'message': 'successful'},
+          // Delay the response by 1 second
+          delay: const Duration(seconds: 1),
+        ),
+      );
+    });
+
+    test('Fetch Trailer Link API Call', () async {
+      response = await dio.get(
+        'https://api.themoviedb.org/3/movie/634492/videos?language=en-US',
+        options: Options(headers: headers),
+      );
+      expect(response.statusCode, 200);
+    });
+  });
 
   group('Movie.fromJson', () {
     test('should create a Movie instance from a valid JSON map', () {
